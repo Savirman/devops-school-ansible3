@@ -1,6 +1,6 @@
 ---
 - name: Installation of the Apache web-server
-  hosts: localhost
+  hosts: nodes
   gather_facts: yes
 
   roles:
