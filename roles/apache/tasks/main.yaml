@@ -1,0 +1,26 @@
+---
+  - name: Install the Apache Web-server
+    yum:
+      name: httpd
+      state: latest
+
+  - name: Start the Apache Web-server
+    service:
+      name: httpd
+      state: started
+    notify:
+      - Enable the Apache Web-server on boot
+
+  - name: Check if the Apache is started
+    service_facts:
+
+  - name: See the Apache service facts as they are
+    debug:
+      msg: "{{ansible_facts.services['httpd.service'].state}}"
+
+  - name: Verify is the Apache Web-server is running
+    assert:
+      that:
+        - "'{{ansible_facts.services['httpd.service'].state}}' == 'running'"
+      fail_msg: "Apache is down"
+      success_msg: "Apache is up"

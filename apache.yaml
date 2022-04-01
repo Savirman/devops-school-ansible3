@@ -1,0 +1,7 @@
+---
+- name: Installation of the Apache web-server
+  hosts: nodes
+  gather_facts: yes
+
+  roles:
+    - apache

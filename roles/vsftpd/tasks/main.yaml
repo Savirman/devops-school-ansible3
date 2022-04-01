@@ -1,0 +1,51 @@
+---
+
+- name: Install vsftpd
+  yum:
+    name: '{{ vsftpd_packages }}'
+    state: present
+
+- name: Allow TCP ports for vsftpd
+  firewalld:
+    zone: public
+    port: '{{ item }}/tcp'
+    permanent: yes
+    state: enabled
+  loop:
+      - 20
+      - 21
+  notify: restart firewalld
+
+- include_tasks: selinux.yaml
+  when: ansible_selinux is defined and ansible_selinux != false and ansible_selinux.status == 'enabled'
+
+- name: Check the right to access to '{{ vsftpd_anon_root }}' for anonymous user
+  file:
+    path: '{{ vsftpd_anon_root }}'
+    state: directory
+    owner: '{{ vsftpd_owner }}'
+    group: '{{ vsftpd_group }}'
+    mode: '{{ vsftpd_mode }}'
+    setype: '{{ vsftpd_setype }}'
+
+- name: Check the right to upload to '{{ vsftpd_local_root }}' to for anonymous user
+  file:
+    path: '{{ vsftpd_local_root }}'
+    state: directory
+    owner: '{{ vsftpd_owner }}'
+    group: '{{ vsftpd_group }}'
+    mode: '{{ vsftpd_local_umask }}'
+    setype: '{{ vsftpd_setype }}'
+
+- name: Install configuration file
+  template:
+    src: vsftpd.conf.j2
+    dest: "{{ vsftpd_config_file }}"
+    mode: '0600'
+  notify: restart vsftpd
+
+- name: Ensure service is started
+  service:
+    name: '{{ vsftpd_service }}'
+    state: started
+    enabled: true

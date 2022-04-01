@@ -1,0 +1,6 @@
+---
+
+  - name: Enable the Apache Web-server on boot
+    service:
+      name: httpd
+      enabled: yes
